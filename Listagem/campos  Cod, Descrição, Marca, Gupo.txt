@@ -1,0 +1,3 @@
+campos:  Cod, Descrição, Marca, Gupo, Qtd, Unidade, Estoque, PreçoVenda 
+
+filtros: grupo, Marca, cod, desc, ativo
