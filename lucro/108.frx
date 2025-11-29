@@ -1,0 +1,197 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="06/09/2015 10:23:32" ReportInfo.Modified="11/29/2025 11:49:19" ReportInfo.CreatorVersion="2020.4.0.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+    public class ReportScript
+    {
+        private decimal DivZero(object obj){
+            decimal valor = 1;
+      
+            if(decimal.Parse(obj.ToString()) != 0){
+                valor = decimal.Parse(obj.ToString()); 
+            }
+      
+            return valor;
+        }
+    
+        private decimal isNegativo(decimal obj){
+            if(obj &lt; 0) {
+                return -1;
+            }
+            return 1;     
+        }
+    }
+}</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqHwzMSgwTFaHpjtG3vsOj8YETeF6EDqM00p3Se2oozBanAvI8PCB+ZOALm5lLo5E4R290EDZYITtxmhW0xQZMBOVhrcEXe4KBiAz/M2Br5c6Tb+e0PA33JqzmXN5mrO/l1qjnjmjsS+aif97EXcappgSi4QRkEdO8RPCGDIpjoHjmZv2ceB2b+p74CKbKYhkEhYrSgZHfz6Prb3S5h3ygKvOvSB9yeDqXLMEeii26vr8=">
+      <TableDataSource Name="Table" Alias="Command" DataType="System.Int32" Enabled="true" SelectCommand="	DECLARE @Query AS VARCHAR(MAX);&#13;&#10;&#13;&#10;	SET @Query = '&#13;&#10;	SELECT &#13;&#10;		''Venda'' AS TipoVenda,&#13;&#10;		PG.cProdutoGrupo,&#13;&#10;		PG.Descricao GrupoDescricao,&#13;&#10;		AI.cProdutoEmbalagem,&#13;&#10;		AI.Descricao,&#13;&#10;		V.cVenda,&#13;&#10;		A.cCliente,&#13;&#10;		CASE WHEN A.IdPedidoZeDelivery IS NOT NULL THEN ''Sim'' ELSE ''Não'' END AS ZeDlv,&#13;&#10;		CAST(V.Data AS DATE) AS Data,&#13;&#10;		AI.Quantidade * PE.QtdeEmbalagem AS Quantidade,&#13;&#10;		AI.ValorTotalLiquido,&#13;&#10;		AI.DescontoValor,&#13;&#10;		(AI.CustoFuncionalValor + AI.ComissaoPrecoValor + AI.IcmsValor + AI.PisValor + AI.IpiValor + AI.CofinsValor) AS Custo,&#13;&#10;		(AI.PrecoCusto * AI.Quantidade) AS PrecoCusto,&#13;&#10;		AI.LucroValor AS Lucro,&#13;&#10;		(AI.ValorTotalLiquido - (AI.CustoFuncionalValor + AI.ComissaoPrecoValor + AI.IcmsValor + AI.PisValor + AI.IpiValor + AI.CofinsValor) - (AI.PrecoCusto * AI.Quantidade)) AS LucroReal&#13;&#10;		FROM TbOpr_Atendimento A &#13;&#10;		INNER JOIN TbOpr_AtendimentoItem AI ON A.cAtendimento = AI.cAtendimento AND A.cEmpresa = AI.cEmpresa&#13;&#10;		INNER JOIN TbOpr_Venda V ON A.cAtendimento = V.cAtendimento AND A.cEmpresa = V.cEmpresa&#13;&#10;		INNER JOIN TbCad_ProdutoEmbalagem PE ON AI.cProdutoEmbalagem = PE.cProdutoEmbalagem &#13;&#10;		INNER JOIN TbCad_Produto p ON PE.cProduto = P.cProduto&#13;&#10;		INNER JOIN TbCad_ProdutoGrupo PG ON P.cProdutoGrupo = PG.cProdutoGrupo&#13;&#10;		LEFT JOIN TbCad_ProdutoMarca PM ON P.cProdutoMarca = PM.cProdutoMarca&#13;&#10;		WHERE 1=1 &#13;&#10;		AND V.Estado != 10&#13;&#10;		AND AI.Estado = 0&#13;&#10;	'&#13;&#10;&#13;&#10;	IF(@DataInicial &lt;&gt; '')&#13;&#10;		SET @Query = @Query + ' AND CAST(V.Data AS DATE) &gt;= '''+@DataInicial+''''&#13;&#10;&#13;&#10;	IF(@DataFinal &lt;&gt; '')&#13;&#10;		SET @Query = @Query + ' AND CAST(V.Data AS DATE) &lt;= '''+@DataFinal+''''&#13;&#10;&#13;&#10;	IF(@cVenda &lt;&gt; '')&#13;&#10;		SET @Query = @Query + ' AND V.cVenda = '''+@cVenda+''''&#13;&#10;&#13;&#10;	IF(@cCliente &lt;&gt; '')&#13;&#10;		SET @Query = @Query + ' AND A.cCliente = '''+@cCliente+''''&#13;&#10;&#13;&#10;	IF(@cGrupo &lt;&gt; '')&#13;&#10;		SET @Query = @Query + ' AND P.cProdutoGrupo = '''+@cGrupo+''''&#13;&#10;&#13;&#10;	IF(@cSubGrupo &lt;&gt; '')&#13;&#10;		SET @Query = @Query + ' AND P.cProdutoSubGrupo = '''+@cSubGrupo+''''&#13;&#10;&#13;&#10;	IF(@cProduto &lt;&gt;'')&#13;&#10;		SET @Query = @Query + ' AND P.cProduto = '''+@cProduto+''''&#13;&#10;&#13;&#10;	IF(@cMarca &lt;&gt;'')&#13;&#10;		SET @Query = @Query + ' AND PM.cProdutoMarca = '''+@cMarca+''''&#13;&#10;&#13;&#10;	IF(@cFornecedor &lt;&gt;'')&#13;&#10;		SET @Query = @Query + ' AND AI.cProdutoEmbalagem IN (SELECT NFI.cProdutoEmbalagem FROM TbOpr_NotaFiscalFornecedorItem NFI WHERE NFI.cPessoa =   '''+@cFornecedor+''' AND NFI.cEmpresa = '''+@cEmpresa+''') '&#13;&#10;&#13;&#10;	SET @Query = @Query + ' AND V.cEmpresa = '''+@cEmpresa+''''&#13;&#10;&#13;&#10;	SET @Query = @Query + '&#13;&#10;&#13;&#10;	UNION ALL&#13;&#10;&#13;&#10;	SELECT &#13;&#10;		''Estorno'' AS TipoVenda,&#13;&#10;		PG.cProdutoGrupo,&#13;&#10;		PG.Descricao GrupoDescricao,&#13;&#10;		AI.cProdutoEmbalagem,&#13;&#10;		AI.Descricao,&#13;&#10;		V.cVenda,&#13;&#10;		A.cCliente,&#13;&#10;		CASE WHEN A.IdPedidoZeDelivery IS NOT NULL THEN ''Sim'' ELSE ''Não'' END AS ZeDlv,&#13;&#10;		CAST(O.Data AS DATE) AS Data,&#13;&#10;		AI.Quantidade * PE.QtdeEmbalagem * -1 AS Quantidade,&#13;&#10;		AI.ValorTotalLiquido * -1 AS ValorTotalLiquido,&#13;&#10;		0 AS DescontoValor,&#13;&#10;		(AI.CustoFuncionalValor + AI.ComissaoPrecoValor + AI.IcmsValor + AI.PisValor + AI.IpiValor + AI.CofinsValor) * -1 AS Custo,&#13;&#10;		(AI.PrecoCusto * AI.Quantidade)  * -1 AS PrecoCusto,&#13;&#10;		AI.LucroValor  * -1 AS Lucro ,&#13;&#10;		(AI.ValorTotalLiquido - (AI.CustoFuncionalValor + AI.ComissaoPrecoValor + AI.IcmsValor + AI.PisValor + AI.IpiValor + AI.CofinsValor) - (AI.PrecoCusto * AI.Quantidade))  * -1 AS LucroReal&#13;&#10;	FROM &#13;&#10;		TbOpr_Atendimento A &#13;&#10;		INNER JOIN TbOpr_Venda V ON A.cAtendimento = V.cAtendimento AND A.cEmpresa = V.cEmpresa&#13;&#10;		INNER JOIN TbOpr_VendaEstorno VES ON VES.cVenda = V.cVenda&#13;&#10;		INNER JOIN TbOpr_VendaEstornoItem VEI ON VEI.cOperacao = VES.cOperacao AND VEI.cEmpresa = VES.cEmpresa&#13;&#10;		INNER JOIN TbOpr_Operacao O ON O.cOperacao = VES.cOperacao AND O.cEmpresa = VES.cEmpresa&#13;&#10;		INNER JOIN TbOpr_AtendimentoItem AI ON AI.cAtendimentoItem = VEI.cAtendimentoItem AND AI.cEmpresa = VEI.cEmpresa&#13;&#10;		INNER JOIN TbCad_ProdutoEmbalagem PE ON AI.cProdutoEmbalagem = PE.cProdutoEmbalagem &#13;&#10;		INNER JOIN TbCad_Produto p ON PE.cProduto = P.cProduto&#13;&#10;		INNER JOIN TbCad_ProdutoGrupo PG ON P.cProdutoGrupo = PG.cProdutoGrupo&#13;&#10;		LEFT JOIN TbCad_ProdutoMarca PM ON P.cProdutoMarca = PM.cProdutoMarca&#13;&#10;	WHERE 1=1 &#13;&#10;		AND V.Estado != 10&#13;&#10;		AND AI.Estado = 0&#13;&#10;		AND VES.Estado = 2&#13;&#10;	'&#13;&#10;&#13;&#10;	IF(@DataInicial &lt;&gt; '')&#13;&#10;		SET @Query = @Query + ' AND CAST(O.Data AS DATE) &gt;= '''+@DataInicial+''''&#13;&#10;&#13;&#10;	IF(@DataFinal &lt;&gt; '')&#13;&#10;		SET @Query = @Query + ' AND CAST(O.Data AS DATE) &lt;= '''+@DataFinal+''''&#13;&#10;&#13;&#10;	IF(@cVenda &lt;&gt; '')&#13;&#10;		SET @Query = @Query + ' AND V.cVenda = '''+@cVenda+''''&#13;&#10;&#13;&#10;	IF(@cCliente &lt;&gt; '')&#13;&#10;		SET @Query = @Query + ' AND A.cCliente = '''+@cCliente+''''&#13;&#10;&#13;&#10;	IF(@cGrupo &lt;&gt; '')&#13;&#10;		SET @Query = @Query + ' AND P.cProdutoGrupo = '''+@cGrupo+''''&#13;&#10;&#13;&#10;	IF(@cSubGrupo &lt;&gt; '')&#13;&#10;		SET @Query = @Query + ' AND P.cProdutoSubGrupo = '''+@cSubGrupo+''''&#13;&#10;&#13;&#10;	IF(@cProduto &lt;&gt;'')&#13;&#10;		SET @Query = @Query + ' AND P.cProduto = '''+@cProduto+''''&#13;&#10;&#13;&#10;	IF(@cMarca &lt;&gt;'')&#13;&#10;		SET @Query = @Query + ' AND PM.cProdutoMarca = '''+@cMarca+''''&#13;&#10;&#13;&#10;	IF(@cFornecedor &lt;&gt;'')&#13;&#10;		SET @Query = @Query + ' AND AI.cProdutoEmbalagem IN (SELECT NFI.cProdutoEmbalagem FROM TbOpr_NotaFiscalFornecedorItem NFI WHERE NFI.cPessoa =   '''+@cFornecedor+''' AND NFI.cEmpresa = '''+@cEmpresa+''') '&#13;&#10;&#13;&#10;	SET @Query = @Query + ' AND V.cEmpresa = '''+@cEmpresa+''''&#13;&#10;&#13;&#10;	SET @Query = @Query + '&#13;&#10;&#13;&#10;	UNION ALL&#13;&#10;&#13;&#10;	SELECT &#13;&#10;		''Devolução NF'' AS TipoVenda,&#13;&#10;		QQ.cProdutoGrupo,&#13;&#10;		QQ.GrupoDescricao,&#13;&#10;		QQ.cProdutoEmbalagem,&#13;&#10;		QQ.Descricao,&#13;&#10;		QQ.cVenda,&#13;&#10;		QQ.cCliente,&#13;&#10;		QQ.DataEmissao,&#13;&#10;		CASE WHEN QQ.IdPedidoZeDelivery IS NOT NULL THEN ''Sim'' ELSE ''Não'' END AS ZeDlv,&#13;&#10;		QQ.Quantidade * -1,&#13;&#10;		QQ.ValorTotalLiquido * -1 AS ValorTotalLiquido,&#13;&#10;		QQ.DescontoValor,&#13;&#10;		(((AI.CustoFuncionalValor + AI.ComissaoPrecoValor)/AI.Quantidade * QQ.Quantidade) + QQ.Custo) * -1 AS Custo,&#13;&#10;		((AI.PrecoCusto + QQ.Custo) * QQ.QuantidadeItem) * -1 AS PrecoCusto,&#13;&#10;		AI.LucroValor * -1 AS LucroValor,&#13;&#10;		((QQ.ValorTotalLiquido - (((AI.CustoFuncionalValor + AI.ComissaoPrecoValor)/AI.Quantidade * QQ.Quantidade) + QQ.Custo)) - (AI.PrecoCusto * QQ.QuantidadeItem)) * -1 AS LucroReal&#13;&#10;	FROM (&#13;&#10;		SELECT&#13;&#10;			Q.cAtendimento,&#13;&#10;			PG.cProdutoGrupo,&#13;&#10;			PG.Descricao AS GrupoDescricao,&#13;&#10;			NFPI.cProdutoEmbalagem,&#13;&#10;			NFPI.Descricao,&#13;&#10;			Q.cVenda,&#13;&#10;			Q.cCliente,&#13;&#10;			Q.IdPedidoZeDelivery,&#13;&#10;			NFP.DataEmissao,&#13;&#10;			NFPI.Quantidade AS QuantidadeItem,&#13;&#10;			NFPI.Quantidade * PE.QtdeEmbalagem AS Quantidade,&#13;&#10;			NFPI.ValorTotalLiquido,&#13;&#10;			NFPI.DescontoValor,&#13;&#10;			(COALESCE(NFPI.IcmsValor, 0) + COALESCE(NFPI.PisValor, 0) + COALESCE(NFPI.IpiValor, 0) + COALESCE(NFPI.CofinsValor, 0)) AS Custo&#13;&#10;		FROM&#13;&#10;			(&#13;&#10;			SELECT&#13;&#10;				A.cAtendimento,&#13;&#10;				A.cCliente,&#13;&#10;				V.cVenda,&#13;&#10;				A.IdPedidoZeDelivery,&#13;&#10;				_NFP.Chave&#13;&#10;			FROM &#13;&#10;				TbOpr_Atendimento A &#13;&#10;				INNER JOIN TbOpr_Venda V ON A.cAtendimento = V.cAtendimento AND A.cEmpresa = V.cEmpresa&#13;&#10;				INNER JOIN TbOpr_NotaFiscalPropria _NFP ON _NFP.cNotaFiscalModelo = V.cNotaFiscalModelo AND _NFP.Numero = V.NumeroNF AND _NFP.Serie = V.Serie AND _NFP.cEmpresa = V.cEmpresa&#13;&#10;			WHERE 1=1 &#13;&#10;				AND V.Estado != 10&#13;&#10;	'&#13;&#10;&#13;&#10;	SET @Query = @Query + ' AND V.cEmpresa = '''+@cEmpresa+'''&#13;&#10;			) AS Q,&#13;&#10;			TbOpr_NotaFiscalPropria NFP&#13;&#10;			INNER JOIN TbOpr_NotaFiscalPropriaItem NFPI ON NFPI.cEmpresa = NFP.cEmpresa AND NFPI.cNotaFiscalModelo = NFP.cNotaFiscalModelo AND NFPI.Serie = NFP.Serie AND NFPI.Numero = NFP.Numero&#13;&#10;			INNER JOIN TbCad_EFD_CFOP EC ON EC.cCfop = NFP.cCfop&#13;&#10;		&#13;&#10;			INNER JOIN TbCad_ProdutoEmbalagem PE ON PE.cProdutoEmbalagem = NFPI.cProdutoEmbalagem &#13;&#10;			INNER JOIN TbCad_Produto P ON P.cProduto = PE.cProduto&#13;&#10;			INNER JOIN TbCad_ProdutoGrupo PG ON PG.cProdutoGrupo = P.cProdutoGrupo&#13;&#10;			LEFT JOIN TbCad_ProdutoMarca PM ON PM.cProdutoMarca = P.cProdutoMarca&#13;&#10;		WHERE&#13;&#10;			1=1 &#13;&#10;			AND NFP.ChaveReferenciada IN (Q.Chave)&#13;&#10;			AND NFP.Estado = 3&#13;&#10;			AND EC.IsEntrada = 1 &#13;&#10;			AND EC.IsDevolucao = 1&#13;&#10;			AND EXISTS &#13;&#10;			(&#13;&#10;			SELECT &#13;&#10;				OFR.cOperacao &#13;&#10;			FROM &#13;&#10;				TbOpr_OperacaoFaturamentoReceber OFR &#13;&#10;			WHERE &#13;&#10;				OFR.cOperacao = NFP.cOperacao&#13;&#10;				AND OFR.cEmpresa = NFP.cEmpresa &#13;&#10;				AND OFR.IsConfirmado = 1&#13;&#10;				AND OFR.IsDevolucao = 1&#13;&#10;				AND OFR.IsGerado = 1&#13;&#10;			)&#13;&#10;	'&#13;&#10;&#13;&#10;	IF(@DataInicial &lt;&gt; '')&#13;&#10;		SET @Query = @Query + ' AND CAST(NFP.DataEmissao AS DATE) &gt;= '''+@DataInicial+''''&#13;&#10;&#13;&#10;	IF(@DataFinal &lt;&gt; '')&#13;&#10;		SET @Query = @Query + ' AND CAST(NFP.DataEmissao AS DATE) &lt;= '''+@DataFinal+''''&#13;&#10;&#13;&#10;	IF(@cVenda &lt;&gt; '')&#13;&#10;		SET @Query = @Query + ' AND Q.cVenda = '''+@cVenda+''''&#13;&#10;&#13;&#10;	IF(@cCliente &lt;&gt; '')&#13;&#10;		SET @Query = @Query + ' AND Q.cCliente = '''+@cCliente+''''&#13;&#10;&#13;&#10;	IF(@cGrupo &lt;&gt; '')&#13;&#10;		SET @Query = @Query + ' AND P.cProdutoGrupo = '''+@cGrupo+''''&#13;&#10;&#13;&#10;	IF(@cSubGrupo &lt;&gt; '')&#13;&#10;		SET @Query = @Query + ' AND P.cProdutoSubGrupo = '''+@cSubGrupo+''''&#13;&#10;&#13;&#10;	IF(@cSecao &lt;&gt; '')&#13;&#10;		SET @Query = @Query + ' AND P.cProdutoSecao = '''+@cSecao+''''&#13;&#10;&#13;&#10;	IF(@cProduto &lt;&gt;'')&#13;&#10;		SET @Query = @Query + ' AND P.cProduto = '''+@cProduto+''''&#13;&#10;&#13;&#10;	IF(@cMarca &lt;&gt;'')&#13;&#10;		SET @Query = @Query + ' AND PM.cProdutoMarca = '''+@cMarca+''''&#13;&#10;&#13;&#10;	IF(@cFornecedor &lt;&gt;'')&#13;&#10;		SET @Query = @Query + ' AND NFPI.cProdutoEmbalagem IN (SELECT NFI.cProdutoEmbalagem FROM TbOpr_NotaFiscalFornecedorItem NFI WHERE NFI.cPessoa = '''+@cFornecedor+''' AND NFI.cEmpresa = '''+@cEmpresa+''') '&#13;&#10;&#13;&#10;	SET @Query = @Query + '&#13;&#10;	) QQ&#13;&#10;	CROSS APPLY(&#13;&#10;		SELECT TOP 1 * FROM TbOpr_AtendimentoItem AI WHERE  AI.cAtendimento = QQ.cAtendimento AND AI.cProdutoEmbalagem = QQ.cProdutoEmbalagem&#13;&#10;	) AI&#13;&#10;	'&#13;&#10;&#13;&#10;	EXECUTE(@Query)">
+        <Column Name="cProdutoGrupo" DataType="System.Decimal"/>
+        <Column Name="GrupoDescricao" DataType="System.String"/>
+        <Column Name="Descricao" DataType="System.String"/>
+        <Column Name="cVenda" DataType="System.Decimal"/>
+        <Column Name="Data" DataType="System.DateTime"/>
+        <Column Name="Quantidade" DataType="System.Decimal"/>
+        <Column Name="Custo" DataType="System.Decimal"/>
+        <Column Name="Lucro" DataType="System.Decimal"/>
+        <Column Name="PrecoCusto" DataType="System.Decimal"/>
+        <Column Name="cProdutoEmbalagem" DataType="System.Decimal"/>
+        <Column Name="ValorTotalLiquido" DataType="System.Decimal"/>
+        <Column Name="LucroReal" DataType="System.Decimal"/>
+        <Column Name="DescontoValor" DataType="System.Decimal"/>
+        <Column Name="TipoVenda" DataType="System.String"/>
+        <Column Name="cCliente" DataType="System.Decimal"/>
+        <Column Name="ZeDlv" DataType="System.DateTime"/>
+        <CommandParameter Name="DataInicial" DataType="22" Expression="[DataInicial]"/>
+        <CommandParameter Name="DataFinal" DataType="22" Expression="[DataFinal]"/>
+        <CommandParameter Name="cGrupo" DataType="22" Expression="[cGrupo]"/>
+        <CommandParameter Name="cProduto" DataType="22" Expression="[cProduto]"/>
+        <CommandParameter Name="cEmpresa" DataType="22" Expression="[cEmpresa]" DefaultValue="1"/>
+        <CommandParameter Name="cMarca" DataType="22" Expression="[cMarca]"/>
+        <CommandParameter Name="cFornecedor" DataType="22" Expression="[cFornecedor]"/>
+        <CommandParameter Name="cVenda" DataType="22" Expression="[cVenda]"/>
+        <CommandParameter Name="cCliente" DataType="22" Expression="[cCliente]"/>
+        <CommandParameter Name="cSubGrupo" DataType="22" Expression="[cSubGrupo]"/>
+        <CommandParameter Name="cSecao" DataType="22" Expression="[cSecao]"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="DataInicial" DataType="System.String" Description="Data Inicial">
+      <Parameter Name="TYPE" DataType="System.String" Description="DATE"/>
+    </Parameter>
+    <Parameter Name="DataFinal" DataType="System.String" Description="Data Final">
+      <Parameter Name="TYPE" DataType="System.String" Description="DATE"/>
+    </Parameter>
+    <Parameter Name="cEmpresa" DataType="System.String"/>
+    <Parameter Name="cVenda" DataType="System.String" Description="Venda"/>
+    <Parameter Name="cProduto" DataType="System.String" Description="Produto">
+      <Parameter Name="TYPE" DataType="System.String" Description="SEARCH"/>
+      <Parameter Name="TB" DataType="System.String" Description="TbCad_Produto"/>
+    </Parameter>
+    <Parameter Name="cCliente" DataType="System.String" Description="Cliente">
+      <Parameter Name="TYPE" DataType="System.String" Description="SEARCH"/>
+      <Parameter Name="TB" DataType="System.String" Description="TbCad_Cliente"/>
+    </Parameter>
+    <Parameter Name="cGrupo" DataType="System.String" Description="Grupo">
+      <Parameter Name="TYPE" DataType="System.String" Description="SEARCH"/>
+      <Parameter Name="TB" DataType="System.String" Description="TbCad_ProdutoGrupo"/>
+    </Parameter>
+    <Parameter Name="cSubGrupo" DataType="System.String" Description="Sub-Grupo">
+      <Parameter Name="TYPE" DataType="System.String" Description="SEARCH"/>
+      <Parameter Name="TB" DataType="System.String" Description="TbCad_ProdutoSubgrupo"/>
+    </Parameter>
+    <Parameter Name="cMarca" DataType="System.String" Description="Marca">
+      <Parameter Name="TYPE" DataType="System.String" Description="SEARCH"/>
+      <Parameter Name="TB" DataType="System.String" Description="TbCad_ProdutoMarca"/>
+    </Parameter>
+    <Parameter Name="cFornecedor" DataType="System.String" Description="Fornecedor">
+      <Parameter Name="TYPE" DataType="System.String" Description="SEARCH"/>
+      <Parameter Name="TB" DataType="System.String" Description="TbCad_Pessoa"/>
+    </Parameter>
+    <Parameter Name="cSecao" DataType="System.String" Description="Seção">
+      <Parameter Name="TYPE" DataType="System.String" Description="SEARCH"/>
+      <Parameter Name="TB" DataType="System.String" Description="TbCad_ProdutoSecao"/>
+    </Parameter>
+    <Parameter Name="AutoHeaderLandscape" DataType="System.String" Description="TRUE"/>
+    <Total Name="PrecoTotalGrupo" Expression="Text11.Value" Evaluator="Data1" PrintOn="GroupFooter1"/>
+    <Total Name="CustosGrupo" Expression="[Command.Custo]" Evaluator="Data1" PrintOn="GroupFooter1"/>
+    <Total Name="LucroGrupo" Expression="[Command.Lucro]" Evaluator="Data1" PrintOn="GroupFooter1"/>
+    <Total Name="SobraPrejGrupo" Expression="Text23.Value" Evaluator="Data1" PrintOn="GroupFooter1"/>
+    <Total Name="LucroRealGrupo" Expression="Text25.Value" Evaluator="Data1" PrintOn="GroupFooter1"/>
+    <Total Name="PrecoTotalGeral" Expression="[Command.ValorTotalLiquido]" Evaluator="Data1" ResetAfterPrint="false"/>
+    <Total Name="CustosGeral" Expression="[Command.Custo]" Evaluator="Data1"/>
+    <Total Name="LucroGeral" Expression="[Command.Lucro]" Evaluator="Data1"/>
+    <Total Name="PrecoCustoGeral" Expression="[Command.PrecoCusto]" Evaluator="Data1"/>
+    <Total Name="SobraPrejGeral" Expression="Text23.Value" Evaluator="Data1"/>
+    <Total Name="LucroRealGeral" Expression="Text25.Value" Evaluator="Data1"/>
+    <Total Name="QtdGrupo" Expression="[Command.Quantidade]" Evaluator="Data1" PrintOn="GroupFooter1"/>
+    <Total Name="QtdGeral" Expression="[Command.Quantidade]" Evaluator="Data1"/>
+    <Total Name="DescontoGrupo" Expression="[Command.DescontoValor]" Evaluator="Data1" PrintOn="GroupFooter1"/>
+    <Total Name="DescontoGeral" Expression="[Command.DescontoValor]" Evaluator="Data1"/>
+    <Total Name="PrecoCustoGrupo" Expression="[Command.PrecoCusto]" Evaluator="Data1" PrintOn="GroupFooter1"/>
+  </Dictionary>
+  <ReportPage Name="Page1" Landscape="true" PaperWidth="297" PaperHeight="210" RawPaperSize="9" Guides="510.3,449.82,383.67,325.08,321.3,257.04,253.26,209.79,151.2,45.36,49.14,0,1045.17,982.8,979.02,916.65,912.87,852.39,848.61,786.24,782.46,723.87,720.09,659.61,655.83,582.12,578.34,514.08,453.6,387.45,69.93,37.8" Watermark.Font="Arial, 60pt">
+    <GroupHeaderBand Name="GroupHeader1" Width="1047.06" Height="34.02" Border.Lines="Top, Bottom" Fill.Color="WhiteSmoke" Guides="26.46,13.23" Condition="[Command.cProdutoGrupo]">
+      <TextObject Name="Text2" Left="37.8" Top="2.27" Width="32.13" Height="10.96" Text="[Command.cProdutoGrupo]" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+      <TextObject Name="Text1" Top="2.27" Width="37.75" Height="10.96" Text="Grupo" Font="Arial, 7pt, style=Bold"/>
+      <TextObject Name="Text3" Left="69.93" Top="2.27" Width="433.05" Height="10.96" Text="[Command.GrupoDescricao]" Font="Arial, 7pt, style=Bold"/>
+      <TextObject Name="Text59" Left="49.14" Top="15.5" Width="100.17" Height="10.96" Text="Descrição" Font="Arial, 7pt, style=Bold"/>
+      <TextObject Name="Text58" Left="0.76" Top="15.5" Width="44.6" Height="10.96" Text="Produto" Font="Arial, 7pt, style=Bold"/>
+      <TextObject Name="Text60" Left="209.79" Top="15.5" Width="43.47" Height="10.96" Text="Venda" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+      <TextObject Name="Text61" Left="257.04" Top="15.5" Width="64.26" Height="10.96" Text="Data" Format="Date" Format.Format="d" Font="Arial, 7pt, style=Bold"/>
+      <TextObject Name="Text62" Left="325.08" Top="15.5" Width="58.59" Height="10.96" Text="Qtd" Format="Number" Format.UseLocale="false" Format.DecimalDigits="0" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Arial, 7pt, style=Bold" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text63" Left="387.45" Top="15.5" Width="62.37" Height="10.96" Text="Total Venda" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" WordWrap="false" Font="Arial, 7pt, style=Bold" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text64" Left="453.6" Top="15.5" Width="56.7" Height="10.96" Text="Custo" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" WordWrap="false" Font="Arial, 7pt, style=Bold" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text65" Left="514.08" Top="15.5" Width="64.26" Height="10.96" Text="Desc" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" WordWrap="false" Font="Arial, 7pt, style=Bold" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text66" Left="582.12" Top="15.5" Width="73.71" Height="10.96" Text="Total Pr Custo" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" WordWrap="false" Font="Arial, 7pt, style=Bold" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text67" Left="786.24" Top="15.5" Width="62.37" Height="10.96" Text="Sobra/Prej" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" WordWrap="false" Font="Arial, 7pt, style=Bold" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text68" Left="852.39" Top="15.5" Width="60.48" Height="10.96" Text="Lucro Real" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" WordWrap="false" Font="Arial, 7pt, style=Bold" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text69" Left="659.61" Top="15.5" Width="60.48" Height="10.96" Text="Lucro Prev" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" WordWrap="false" Font="Arial, 7pt, style=Bold" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text70" Left="723.87" Top="15.5" Width="58.59" Height="10.96" Text="Lucro (%)" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+      <TextObject Name="Text71" Left="982.8" Top="15.5" Width="62.37" Height="10.96" Text="MarkUp (%)" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+      <TextObject Name="Text72" Left="916.65" Top="15.5" Width="62.37" Height="10.96" Text="Lucro R(%)" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+      <DataBand Name="Data1" Top="37.22" Width="1047.06" Height="24.57" Guides="15.12" DataSource="Table">
+        <TextObject Name="Text4" Left="49.14" Top="4.16" Width="100.17" Height="10.96" Text="[Command.Descricao]" Font="Arial, 7pt"/>
+        <TextObject Name="Text5" Left="209.79" Top="4.16" Width="43.47" Height="10.96" Text="[Command.cVenda]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="0" Format.DecimalSeparator="," Format.GroupSeparator="" Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Arial, 7pt" Trimming="EllipsisCharacter"/>
+        <TextObject Name="Text7" Left="257.04" Top="4.16" Width="64.26" Height="10.96" Text="[Command.Data]" Format="Date" Format.Format="d" Font="Arial, 7pt"/>
+        <TextObject Name="Text11" Left="387.45" Top="4.16" Width="62.37" Height="10.96" Text="[Command.ValorTotalLiquido]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" WordWrap="false" Font="Arial, 7pt" Trimming="EllipsisCharacter"/>
+        <TextObject Name="Text13" Top="4.16" Width="45.36" Height="10.96" Text="[Command.cProdutoEmbalagem]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="0" Format.DecimalSeparator="," Format.GroupSeparator="" Format.NegativePattern="1" WordWrap="false" Font="Arial, 7pt" Trimming="EllipsisCharacter"/>
+        <TextObject Name="Text16" Left="453.6" Top="4.16" Width="56.7" Height="10.96" Text="[Command.Custo]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" WordWrap="false" Font="Arial, 7pt" Trimming="EllipsisCharacter"/>
+        <TextObject Name="Text18" Left="514.08" Top="4.16" Width="64.26" Height="10.96" Text="[Command.DescontoValor]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" WordWrap="false" Font="Arial, 7pt" Trimming="EllipsisCharacter"/>
+        <TextObject Name="Text20" Left="582.12" Top="4.16" Width="73.71" Height="10.96" Text="[Command.PrecoCusto]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" WordWrap="false" Font="Arial, 7pt" Trimming="EllipsisCharacter"/>
+        <TextObject Name="Text23" Left="786.24" Top="4.16" Width="62.37" Height="10.96" Text="[[Command.LucroReal] - [Command.Lucro]]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" WordWrap="false" Font="Arial, 7pt" Trimming="EllipsisCharacter"/>
+        <TextObject Name="Text25" Left="852.39" Top="4.16" Width="60.48" Height="10.96" Text="[Command.LucroReal]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" WordWrap="false" Font="Arial, 7pt" Trimming="EllipsisCharacter"/>
+        <TextObject Name="Text27" Left="659.61" Top="4.16" Width="60.48" Height="10.96" Text="[Command.Lucro]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" WordWrap="false" Font="Arial, 7pt" Trimming="EllipsisCharacter"/>
+        <TextObject Name="TxtLucroPercentual" Left="723.87" Top="4.16" Width="58.59" Height="10.96" Text="[[Command.ValorTotalLiquido] == 0 ? 0 : ([Command.Lucro] * 100) / [Command.ValorTotalLiquido] * isNegativo([Command.ValorTotalLiquido])]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 7pt"/>
+        <TextObject Name="TxtMarkUp" Left="982.8" Top="4.16" Width="62.37" Height="10.96" Text="[[Command.PrecoCusto] == 0 ? 100 : ((([Command.ValorTotalLiquido] - [Command.PrecoCusto]) * 100) / [Command.PrecoCusto]) * isNegativo([Command.ValorTotalLiquido])]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 7pt"/>
+        <TextObject Name="TxtLucroRealPercentual" Left="916.65" Top="4.16" Width="62.37" Height="10.96" Text="[[Command.ValorTotalLiquido] == 0 ? 0 : ([Command.LucroReal] * 100) / [Command.ValorTotalLiquido] * isNegativo([Command.ValorTotalLiquido])]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 7pt"/>
+        <TextObject Name="Text9" Left="325.08" Top="4.16" Width="58.59" Height="10.96" Text="[Command.Quantidade]" Format="Custom" Format.Format="0.####" HorzAlign="Right" WordWrap="false" Font="Arial, 7pt" Trimming="EllipsisCharacter"/>
+        <TextObject Name="Text76" Left="151.2" Top="-1.89" Width="58.59" Height="17.01" Text="[Command.ZeDlv]" Format="Date" Format.Format="d" Font="Arial, 7pt"/>
+        <Sort>
+          <Sort Expression="[Command.Data]"/>
+          <Sort Expression="[Command.Descricao]"/>
+        </Sort>
+      </DataBand>
+      <GroupFooterBand Name="GroupFooter1" Top="64.99" Width="1047.06" Height="21.14" Border.Lines="Top" Border.TopLine.Style="Dash" Guides="15.12">
+        <TextObject Name="Text38" Top="3.52" Width="80.85" Height="10.96" Text="Totais Grupo" Font="Arial, 7pt, style=Bold"/>
+        <TextObject Name="Text48" Left="325.08" Top="4.16" Width="58.59" Height="10.96" Text="[QtdGrupo]" Format="Custom" Format.Format="0.####" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+        <TextObject Name="txtTotalGrupo" Left="387.45" Top="4.16" Width="62.37" Height="10.96" Text="[PrecoTotalGrupo]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+        <TextObject Name="Text31" Left="453.6" Top="4.16" Width="56.7" Height="10.96" Text="[CustosGrupo]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+        <TextObject Name="txtLucroGrupo" Left="659.61" Top="4.16" Width="60.48" Height="10.96" Text="[LucroGrupo]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+        <TextObject Name="Text33" Left="514.08" Top="4.16" Width="64.26" Height="10.96" Text="[DescontoGrupo]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+        <TextObject Name="txtPrecoCustoGrupo" Left="582.12" Top="4.16" Width="73.71" Height="10.96" Text="[PrecoCustoGrupo]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+        <TextObject Name="Text35" Left="786.24" Top="4.16" Width="62.37" Height="10.96" Text="[SobraPrejGrupo]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+        <TextObject Name="txtLucroRealGrupo" Left="852.39" Top="4.16" Width="60.48" Height="10.96" Text="[LucroRealGrupo]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+        <TextObject Name="Text37" Left="723.87" Top="4.16" Width="58.59" Height="10.96" Text="[(ToDecimal(txtLucroGrupo.Value) * 100) / DivZero(txtTotalGrupo.Value)]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+        <TextObject Name="Text56" Left="982.8" Top="4.16" Width="62.37" Height="10.96" Text="[ToDecimal(txtPrecoCustoGrupo.Value) == 0 ? 100 : (((ToDecimal(txtTotalGrupo.Value) - ToDecimal(txtPrecoCustoGrupo.Value)) * 100) / ToDecimal(txtPrecoCustoGrupo.Value))]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+        <TextObject Name="Text74" Left="916.65" Top="4.16" Width="62.37" Height="10.96" Text="[(ToDecimal(txtLucroRealGrupo.Value) * 100) / DivZero(txtTotalGrupo.Value)]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+      </GroupFooterBand>
+    </GroupHeaderBand>
+    <ReportSummaryBand Name="ReportSummary1" Top="89.33" Width="1047.06" Height="66.15" Border.Lines="Top" Border.TopLine.Style="Dash" Guides="15.12">
+      <TextObject Name="txtLucroTotal" Left="659.61" Top="4.16" Width="60.48" Height="10.96" Text="[LucroGeral]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+      <TextObject Name="Text42" Left="514.08" Top="4.16" Width="64.26" Height="10.96" Text="[DescontoGeral]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+      <TextObject Name="txtPrecoCustoTotal" Left="582.12" Top="4.16" Width="73.71" Height="10.96" Text="[PrecoCustoGeral]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+      <TextObject Name="Text44" Left="786.24" Top="4.16" Width="62.37" Height="10.96" Text="[SobraPrejGeral]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+      <TextObject Name="txtLucroRealTotal" Left="852.39" Top="4.16" Width="60.48" Height="10.96" Text="[LucroRealGeral]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="" Format.NegativePattern="1" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+      <TextObject Name="Text46" Left="723.87" Top="4.16" Width="58.59" Height="10.96" Text="[ToDecimal(txtTotal.Value) == 0 ? 100 : (ToDecimal(txtLucroTotal.Value) * 100) / ToDecimal(txtTotal.Value)]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+      <TextObject Name="Text40" Left="453.6" Top="4.16" Width="56.7" Height="10.96" Text="[CustosGeral]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="" Format.NegativePattern="1" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+      <TextObject Name="Text47" Top="4.16" Width="80.06" Height="10.96" Text="Totais Gerais" Font="Arial, 7pt, style=Bold"/>
+      <TextObject Name="txtTotal" Left="387.45" Top="4.16" Width="62.37" Height="10.96" Text="[PrecoTotalGeral]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+      <TextObject Name="Text49" Left="325.08" Top="4.16" Width="58.59" Height="10.96" Text="[QtdGeral]" Format="Custom" Format.Format="0.####" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+      <TextObject Name="Text57" Left="982.8" Top="4.16" Width="62.37" Height="10.96" Text="[ToDecimal(txtPrecoCustoTotal.Value) == 0 ? 100 : (((ToDecimal(txtTotal.Value) - ToDecimal(txtPrecoCustoTotal.Value)) * 100) / ToDecimal(txtPrecoCustoTotal.Value))]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+      <TextObject Name="Text75" Left="916.65" Top="4.16" Width="62.37" Height="10.96" Text="[ToDecimal(txtTotal.Value) == 0 ? 100 : (ToDecimal(txtLucroRealTotal.Value) * 100) / ToDecimal(txtTotal.Value)]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" Font="Arial, 7pt, style=Bold"/>
+    </ReportSummaryBand>
+  </ReportPage>
+</Report>
