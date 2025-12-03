@@ -138,8 +138,8 @@
 		QQ.Descricao,
 		QQ.cVenda,
 		QQ.cCliente,
-		QQ.DataEmissao,
 		QQ.IdPedidoZeDelivery AS ZeDlvID,
+		QQ.DataEmissao,
 		QQ.Quantidade * -1,
 		QQ.ValorTotalLiquido * -1 AS ValorTotalLiquido,
 		QQ.DescontoValor,
@@ -168,8 +168,8 @@
 			SELECT
 				A.cAtendimento,
 				A.cCliente,
-				V.cVenda,
 				A.IdPedidoZeDelivery,
+				V.cVenda,
 				_NFP.Chave
 			FROM 
 				TbOpr_Atendimento A 
