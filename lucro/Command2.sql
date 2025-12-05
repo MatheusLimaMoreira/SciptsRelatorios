@@ -57,6 +57,9 @@
 	IF(@cFornecedor <>'')
 		SET @Query = @Query + ' AND AI.cProdutoEmbalagem IN (SELECT NFI.cProdutoEmbalagem FROM TbOpr_NotaFiscalFornecedorItem NFI WHERE NFI.cPessoa =   '''+@cFornecedor+''' AND NFI.cEmpresa = '''+@cEmpresa+''') '
 
+	IF(@ZeDelivery = '1')
+		SET @Query = @Query + ' AND A.IdPedidoZeDelivery IS NOT NULL '
+
 	SET @Query = @Query + ' AND V.cEmpresa = '''+@cEmpresa+''''
 
 	SET @Query = @Query + '
@@ -123,6 +126,9 @@
 
 	IF(@cFornecedor <>'')
 		SET @Query = @Query + ' AND AI.cProdutoEmbalagem IN (SELECT NFI.cProdutoEmbalagem FROM TbOpr_NotaFiscalFornecedorItem NFI WHERE NFI.cPessoa =   '''+@cFornecedor+''' AND NFI.cEmpresa = '''+@cEmpresa+''') '
+	
+	IF(@ZeDelivery = '1')
+		SET @Query = @Query + ' AND A.IdPedidoZeDelivery IS NOT NULL '
 
 	SET @Query = @Query + ' AND V.cEmpresa = '''+@cEmpresa+''''
 
@@ -239,6 +245,9 @@
 
 	IF(@cFornecedor <>'')
 		SET @Query = @Query + ' AND NFPI.cProdutoEmbalagem IN (SELECT NFI.cProdutoEmbalagem FROM TbOpr_NotaFiscalFornecedorItem NFI WHERE NFI.cPessoa = '''+@cFornecedor+''' AND NFI.cEmpresa = '''+@cEmpresa+''') '
+
+	IF(@ZeDelivery = '1')
+		SET @Query = @Query + ' AND Q.IdPedidoZeDelivery IS NOT NULL '
 
 	SET @Query = @Query + '
 	) QQ
