@@ -16,3 +16,5 @@ WHERE
 	SI.Estado = 0
 	AND SI.cEmpresa = @cEmpresa
 	AND SI.cAtendimento = @cAtendimento
+	AND (@cServicoGrupo = ''
+        OR S.cServicoGrupo = @cServicoGrupo)
