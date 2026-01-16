@@ -26,6 +26,7 @@ IF (@cServicoGrupo <> '')
 	SET @Query = @Query + ' AND S.cServicoGrupo = ''' + @cServicoGrupo + '''';
 
 IF (@cServico <> '')
-	SET @Query = @Query + ' AND S.cServico = ''' + @cServicoGrupo + '''';
+	SET @Query = @Query + ' AND SI.cServico = ''' + @cServico + '''';
 
 EXECUTE(@Query);
+
