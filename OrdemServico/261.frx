@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Report ScriptLanguage="CSharp" ReportInfo.Created="12/28/2015 10:04:48" ReportInfo.Modified="01/15/2026 11:30:43" ReportInfo.CreatorVersion="2020.4.0.0">
+<Report ScriptLanguage="CSharp" ReportInfo.Created="12/28/2015 10:04:48" ReportInfo.Modified="01/16/2026 11:47:36" ReportInfo.CreatorVersion="2020.4.0.0">
   <ScriptText>using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -33,7 +33,7 @@ namespace FastReport
 }
 </ScriptText>
   <Dictionary>
-    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqM3/HbiZANEYP3Y6oNtE7mmKQXm/jHeRg8+XEg1ehi4kMgbHEooIOYP0dlZV5z2KsEE1h+tfKNxN4VjryiP2uPV7OazaUMeWoKhI2zjh7pv0X/egy0WyQst3WjSxn6Itr8HdBp6O3fXKM3+wQDPTuPyNzWTTy8/3E7l9GpXYjNidRyrX38IWzSl23h282CSz3vnlLndliur6u+qKUQR5Iow==">
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlq+rW0RkboK+/8CKGGYUID3ctBV8q9SvKYxl3iiE7vBnh7Tgou0+4WFf3NfmPSvHVFEYV3Alx6ChXAXtpnlORSqE/ljtQ+qQeLKSfKo2ti+UxFKj2g+JvBmuvrgNmcd/Dx7Qp9fEPyMBKfLBsUN+tCJByPtS1S0hYgCR2y9ecd/1WnQQa2BtWntoorWWGmWVCU/vtHRgm2xfcMrZ2dpEu5Qg==">
       <TableDataSource Name="Table" Alias="Query" DataType="System.Int32" Enabled="true" SelectCommand="DECLARE @Query AS VARCHAR(MAX);&#13;&#10;DECLARE @FistHour AS VARCHAR(13) = ' 00:00:00.000';&#13;&#10;DECLARE @LastHour AS VARCHAR(13) = ' 23:59:59.999'&#13;&#10;&#13;&#10;SET @Query = '&#13;&#10;	SELECT &#13;&#10;		VA.cVendedor,&#13;&#10;		PA.NomeRazao AS NomeRazaoVendedor,&#13;&#10;		A.cAtendimento,&#13;&#10;		A.DataHora,&#13;&#10;		A.Hora,&#13;&#10;		A.OrdemServicoEstado,&#13;&#10;		CASE A.OrdemServicoEstado&#13;&#10;			WHEN 1 THEN ''Aberto''&#13;&#10;			WHEN 2 THEN ''Liberado''&#13;&#10;			WHEN 3 THEN ''Concluido''&#13;&#10;		END AS OrdemServicoEstadoDescricao,&#13;&#10;		A.ValorTotalLiquido,&#13;&#10;		C.cCliente,&#13;&#10;		PC.NomeRazao AS NomeRazaoCliente&#13;&#10;	FROM TbOpr_Atendimento A&#13;&#10;	INNER JOIN TbCad_Cliente C ON C.cCliente = A.cCliente&#13;&#10;	INNER JOIN TbCad_Pessoa PC ON PC.cPessoa = C.cPessoa&#13;&#10;	INNER JOIN TbCad_Vendedor VA ON VA.cVendedor = A.cVendedor &#13;&#10;	INNER JOIN TbCad_Pessoa PA ON PA.cPessoa = VA.cPessoa&#13;&#10;&#13;&#10;	WHERE A.cEmpresa = ' + @cEmpresa + '&#13;&#10;		AND A.Tipo = 1&#13;&#10;		AND A.Estado NOT IN (100, 101)&#13;&#10;  ';&#13;&#10;&#13;&#10;  IF(@DataInicial &lt;&gt; '')&#13;&#10;    	SET @Query = @Query + ' AND A.DataHora &gt;= ''' + @DataInicial + @FistHour + ''''&#13;&#10;&#13;&#10;  IF(@DataFinal &lt;&gt; '')&#13;&#10;    	SET @Query = @Query + ' AND A.DataHora &lt;= ''' + @DataFinal + @LastHour + ''''&#13;&#10;&#13;&#10;IF (@Situacao &lt;&gt; '')&#13;&#10; 	SET @Query = @Query + ' AND A.OrdemServicoEstado =  ''' + @Situacao + ''''&#13;&#10;&#13;&#10;IF (@cCliente &lt;&gt; '') &#13;&#10;  SET @Query = @Query + ' AND C.cCliente = ''' + @cCliente + '''';&#13;&#10;&#13;&#10;IF (@cVendedorResp &lt;&gt; '') &#13;&#10;  SET @Query = @Query + ' AND VA.cVendedor = ''' + @cVendedorResp + '''';&#13;&#10;&#13;&#10;IF (@cVendedorTec &lt;&gt; '')&#13;&#10;	SET @Query = @Query + ' &#13;&#10;		AND A.cAtendimento IN (&#13;&#10;			SELECT SI.cAtendimento &#13;&#10;			FROM TbOpr_ServicoItemComissaoRateio SICR&#13;&#10;			INNER JOIN TbOpr_ServicoItem SI ON SI.cServicoItem = SICR.cServicoItem&#13;&#10;			WHERE SICR.cVendedor = ''' + @cVendedorTec + '''&#13;&#10;&#13;&#10;			UNION &#13;&#10;&#13;&#10;			SELECT SI.cAtendimento &#13;&#10;			FROM TbOpr_ServicoItem SI&#13;&#10;			WHERE SI.cVendedor = ''' + @cVendedorTec + '''&#13;&#10;		)&#13;&#10;	';&#13;&#10;&#13;&#10;&#13;&#10;EXECUTE(@Query);">
         <Column Name="ValorTotalLiquido" DataType="System.Decimal"/>
         <Column Name="cAtendimento" DataType="System.Decimal"/>
@@ -65,7 +65,7 @@ namespace FastReport
         <CommandParameter Name="cEmpresa" DataType="22" Expression="[cEmpresa]" DefaultValue="1"/>
         <CommandParameter Name="cAtendimento" DataType="22" Expression="[Query.cAtendimento]"/>
       </TableDataSource>
-      <TableDataSource Name="Table2" Alias="TableServicoItem" DataType="System.Int32" Enabled="true" SelectCommand="SELECT&#13;&#10;	SI.cServicoItem,&#13;&#10;	SI.cServico,&#13;&#10;	SI.Descricao,&#13;&#10;	SI.Quantidade,&#13;&#10;	SI.ValorUnitarioLiquido,&#13;&#10;	SI.ValorTotalLiquido,&#13;&#10;	SI.cVendedor,&#13;&#10;	PV.NomeRazao,&#13;&#10;	S.cServicoGrupo AS GrupoServico&#13;&#10;FROM TbOpr_ServicoItem SI &#13;&#10;INNER JOIN TbCad_Vendedor V ON V.cVendedor = SI.cVendedor AND V.cEmpresa = SI.cEmpresa&#13;&#10;INNER JOIN TbCad_Pessoa PV ON PV.cPessoa = V.cPessoa&#13;&#10;INNER JOIN TbOpr_Servico S ON SI.cServico = S.cServico&#13;&#10;WHERE&#13;&#10;	SI.Estado = ''&#13;&#10;	AND SI.cEmpresa = @cEmpresa&#13;&#10;	AND SI.cAtendimento = @cAtendimento&#13;&#10;	AND (@cServicoGrupo = ''&#13;&#10;        OR S.cServicoGrupo = @cServicoGrupo)">
+      <TableDataSource Name="Table2" Alias="TableServicoItem" DataType="System.Int32" Enabled="true" SelectCommand="DECLARE @Query AS VARCHAR(MAX);&#13;&#10;&#13;&#10;&#13;&#10;SET @Query = '&#13;&#10;	SELECT&#13;&#10;		SI.cServicoItem,&#13;&#10;		SI.cServico,&#13;&#10;		SI.Descricao,&#13;&#10;		SI.Quantidade,&#13;&#10;		SI.ValorUnitarioLiquido,&#13;&#10;		SI.ValorTotalLiquido,&#13;&#10;		SI.cVendedor,&#13;&#10;		PV.NomeRazao,&#13;&#10;		S.cServicoGrupo AS GrupoServico&#13;&#10;	FROM TbOpr_ServicoItem SI&#13;&#10;	INNER JOIN TbCad_Vendedor V ON V.cVendedor = SI.cVendedor AND V.cEmpresa = SI.cEmpresa&#13;&#10;	INNER JOIN TbCad_Pessoa PV ON PV.cPessoa = V.cPessoa&#13;&#10;	INNER JOIN TbOpr_Servico S ON SI.cServico = S.cServico&#13;&#10;	WHERE&#13;&#10;		SI.Estado = ''''&#13;&#10;		AND SI.cEmpresa = ' + @cEmpresa + '&#13;&#10;		AND SI.cAtendimento = ' + @cAtendimento + '&#13;&#10;';&#13;&#10;&#13;&#10;IF (@cServicoGrupo &lt;&gt; '')&#13;&#10;	SET @Query = @Query + ' AND S.cServicoGrupo = ''' + @cServicoGrupo + '''';&#13;&#10;&#13;&#10;EXECUTE(@Query);">
         <Column Name="cServicoItem" DataType="System.Decimal"/>
         <Column Name="cServico" DataType="System.Decimal"/>
         <Column Name="Descricao" DataType="System.String"/>
@@ -76,8 +76,8 @@ namespace FastReport
         <Column Name="NomeRazao" DataType="System.String"/>
         <Column Name="GrupoServico" DataType="System.Char"/>
         <CommandParameter Name="cEmpresa" DataType="22" Expression="[cEmpresa]" DefaultValue="1"/>
-        <CommandParameter Name="cAtendimento" DataType="22" Expression="[Query.cAtendimento]"/>
-        <CommandParameter Name="cServicoGrupo" DataType="3" Expression="[cServicoGrupo]"/>
+        <CommandParameter Name="cAtendimento" DataType="22" Expression="[Query.cAtendimento]" DefaultValue="1"/>
+        <CommandParameter Name="cServicoGrupo" DataType="22" Expression="[cServicoGrupo]"/>
       </TableDataSource>
     </MsSqlDataConnection>
     <Parameter Name="cEmpresa" DataType="System.String" Description="Empresa"/>
@@ -123,7 +123,7 @@ namespace FastReport
   </Dictionary>
   <ReportPage Name="Page1" Guides="0,49.14,-0.22,113.4,166.32,213.57,650.16,648.27,215.46,429.03,718.2,168.21,51.03,115.29,574.56,572.67,430.92,83.16" Watermark.Font="Arial, 60pt" StartPageEvent="Page1_StartPage">
     <ReportTitleBand Name="ReportTitle1" Width="718.2" Height="15.12" Guides="0"/>
-    <DataBand Name="Data1" Top="38.22" Width="718.2" Height="17.01" Border.Lines="Top, Bottom" BeforePrintEvent="Data1_BeforePrint" Guides="1.89,15.12" DataSource="Table">
+    <DataBand Name="Data1" Top="39.35" Width="718.2" Height="17.01" Border.Lines="Top, Bottom" BeforePrintEvent="Data1_BeforePrint" Guides="1.89,15.12" DataSource="Table">
       <TextObject Name="Text1" Top="1.89" Width="49.14" Height="13.23" Text="[Query.cAtendimento]" HorzAlign="Right" WordWrap="false" Font="Arial, 8pt" Trimming="EllipsisCharacter"/>
       <TextObject Name="Text3" Left="51.03" Top="1.89" Width="62.37" Height="13.23" Text="[Query.DataHora]" Format="Date" Format.Format="d" Font="Arial, 8pt"/>
       <TextObject Name="Text5" Left="168.21" Top="1.89" Width="45.36" Height="13.23" Text="[Query.cCliente]" HorzAlign="Right" Font="Arial, 8pt"/>
@@ -132,13 +132,13 @@ namespace FastReport
       <TextObject Name="Text13" Left="215.46" Top="1.89" Width="213.57" Height="13.34" Text="[Query.NomeRazaoCliente]" Font="Arial, 8pt"/>
       <TextObject Name="Text15" Left="574.56" Top="1.89" Width="73.71" Height="13.23" Text="[Query.OrdemServicoEstado] - [Query.OrdemServicoEstadoDescricao]" Font="Arial, 8pt"/>
       <TextObject Name="Text33" Left="430.92" Top="1.89" Width="141.75" Height="13.23" Text="[Query.cVendedor] - [Query.NomeRazaoVendedor]" Font="Arial, 8pt"/>
-      <ChildBand Name="ChildProduto" Top="57.33" Width="718.2" Height="13.23" Visible="false">
+      <ChildBand Name="ChildProduto" Top="59.03" Width="718.2" Height="13.23" Visible="false">
         <SubreportObject Name="Subreport1" Left="-0.22" Width="94.5" Height="13.23" ReportPage="Page2"/>
-        <ChildBand Name="ChildServico" Top="72.66" Width="718.2" Height="13.23" Visible="false">
+        <ChildBand Name="ChildServico" Top="74.93" Width="718.2" Height="13.23" Visible="false">
           <SubreportObject Name="Subreport2" Width="94.5" Height="13.23" ReportPage="Page3"/>
         </ChildBand>
       </ChildBand>
-      <DataHeaderBand Name="DataHeader1" Top="17.22" Width="718.2" Height="18.9" Border.Lines="Top, Bottom" Fill.Color="WhiteSmoke" Guides="1.89,17.01">
+      <DataHeaderBand Name="DataHeader1" Top="17.79" Width="718.2" Height="18.9" Border.Lines="Top, Bottom" Fill.Color="WhiteSmoke" Guides="1.89,17.01">
         <TextObject Name="Text2" Top="1.89" Width="49.14" Height="15.12" Text="Cod OS" HorzAlign="Right" VertAlign="Center" Font="Arial, 8pt, style=Bold"/>
         <TextObject Name="Text4" Left="51.03" Top="1.89" Width="62.37" Height="15.12" Text="Data" VertAlign="Center" Font="Arial, 8pt, style=Bold"/>
         <TextObject Name="Text6" Left="168.21" Top="1.89" Width="45.36" Height="15.12" Text="Cliente" HorzAlign="Right" VertAlign="Center" Font="Arial, 8pt, style=Bold"/>
@@ -149,14 +149,14 @@ namespace FastReport
         <TextObject Name="Text34" Left="430.92" Top="1.89" Width="141.75" Height="15.12" Text="Responsável" VertAlign="Center" Font="Arial, 8pt, style=Bold"/>
       </DataHeaderBand>
     </DataBand>
-    <ReportSummaryBand Name="ReportSummary1" Top="87.99" Width="718.2" Border.Lines="Top">
-      <ChildBand Name="Child3" Top="90.09" Width="718.2" Height="22.68" Guides="1.89">
+    <ReportSummaryBand Name="ReportSummary1" Top="90.82" Width="718.2" Border.Lines="Top">
+      <ChildBand Name="Child3" Top="93.49" Width="718.2" Height="22.68" Guides="1.89">
         <TextObject Name="Text10" Left="-0.22" Top="1.89" Width="83.38" Height="17.01" Text="Total" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" Font="Arial, 10pt, style=Bold"/>
         <TextObject Name="Text9" Left="650.16" Top="1.89" Width="68.04" Height="17.01" Text="[Total]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 9pt, style=Bold"/>
-        <ChildBand Name="ChildTotalItem" Top="114.87" Width="718.2" Height="17.01" Visible="false" Guides="1.89,15.12">
+        <ChildBand Name="ChildTotalItem" Top="118.84" Width="718.2" Height="17.01" Visible="false" Guides="1.89,15.12">
           <TextObject Name="Text51" Left="-0.22" Top="1.89" Width="83.38" Height="13.23" Text="Total Itens" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" Font="Arial, 8pt, style=Bold"/>
           <TextObject Name="txtTotalItens" Left="650.16" Top="1.89" Width="68.04" Height="13.23" Text="[TotalItens]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 8pt, style=Bold"/>
-          <ChildBand Name="ChildTotalServico" Top="133.98" Width="718.2" Height="17.01" Visible="false" Guides="1.89,15.12">
+          <ChildBand Name="ChildTotalServico" Top="138.51" Width="718.2" Height="17.01" Visible="false" Guides="1.89,15.12">
             <TextObject Name="txtTotalServicos" Left="650.16" Top="1.89" Width="68.04" Height="13.23" Text="[TotalServicos]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 8pt, style=Bold"/>
             <TextObject Name="Text53" Left="0.08" Top="1.89" Width="83.08" Height="13.23" Text="Total Serviços" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" Font="Arial, 8pt, style=Bold"/>
           </ChildBand>
@@ -165,7 +165,7 @@ namespace FastReport
     </ReportSummaryBand>
   </ReportPage>
   <ReportPage Name="Page2" Guides="387.45,578.34,646.38,716.31,650.16,532.98,41.58,391.23,96.39" Watermark.Font="Arial, 60pt">
-    <DataBand Name="DataItem" Top="19.11" Width="718.2" Height="17.01" Guides="15.12,3.78" DataSource="Table1">
+    <DataBand Name="DataItem" Top="19.68" Width="718.2" Height="17.01" Guides="15.12,3.78" DataSource="Table1">
       <TextObject Name="Text19" Left="41.58" Top="3.78" Width="51.03" Height="11.34" Text="[TableAtendimentoItem.cProdutoEmbalagem]" HorzAlign="Right" Font="Arial, 7pt"/>
       <TextObject Name="Text21" Left="96.39" Top="3.78" Width="291.06" Height="11.45" Text="[TableAtendimentoItem.Descricao]" Font="Arial, 7pt"/>
       <TextObject Name="Text23" Left="391.23" Top="3.89" Width="137.97" Height="11.23" Text="[TableAtendimentoItem.cVendedor] - [TableAtendimentoItem.NomeRazao]" Font="Arial, 7pt"/>
@@ -181,7 +181,7 @@ namespace FastReport
         <TextObject Name="Text28" Left="582.12" Width="64.26" Height="17.01" Text="Valor Uni" HorzAlign="Right" VertAlign="Center" Font="Arial, 8pt, style=Bold"/>
         <TextObject Name="Text30" Left="650.16" Width="66.15" Height="17.01" Text="Valor Total" HorzAlign="Right" VertAlign="Center" Font="Arial, 8pt, style=Bold"/>
       </DataHeaderBand>
-      <DataFooterBand Name="DataFooter1" Top="38.22" Width="718.2" Height="20.79" Guides="0,3.78,15.12">
+      <DataFooterBand Name="DataFooter1" Top="39.35" Width="718.2" Height="20.79" Guides="0,3.78,15.12">
         <LineObject Name="Line4" Left="41.58" Width="674.73"/>
         <TextObject Name="Text17" Left="631.26" Top="3.78" Width="85.05" Height="11.34" Text="[TotalAtendimentoItem]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="" Format.NegativePattern="1" HorzAlign="Right" Font="Arial, 8pt, style=Bold"/>
         <TextObject Name="Text18" Left="529.2" Top="3.78" Width="49.14" Height="11.34" Text="[TotalQtdAtendimentoItem]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="" Format.NegativePattern="1" HorzAlign="Right" Font="Arial, 8pt, style=Bold"/>
@@ -189,7 +189,7 @@ namespace FastReport
     </DataBand>
   </ReportPage>
   <ReportPage Name="Page3" Guides="308.09,578.34,646.38,716.31,650.16,532.98,41.58,400.82,96.39,92.61,314.82,528.61,396.82" Watermark.Font="Arial, 60pt">
-    <DataBand Name="DataServico" Top="23.39" Width="718.2" Height="17.51" Guides="15.12,3.78" DataSource="Table2">
+    <DataBand Name="DataServico" Top="23.96" Width="718.2" Height="17.51" Guides="15.12,3.78" DataSource="Table2">
       <TextObject Name="Text35" Left="41.58" Top="3.78" Width="51.03" Height="11.34" Text="[TableServicoItem.cServico]" HorzAlign="Right" Font="Arial, 7pt"/>
       <TextObject Name="Text36" Left="96.39" Top="3.78" Width="211.7" Height="11.45" Text="[TableServicoItem.Descricao]" Font="Arial, 7pt"/>
       <TextObject Name="Text37" Left="400.87" Top="3.89" Width="127.78" Height="11.23" Text="[TableServicoItem.cVendedor] - [TableServicoItem.NomeRazao]" Font="Arial, 7pt"/>
@@ -209,7 +209,7 @@ namespace FastReport
         <TextObject Name="Text55" Left="329.37" Top="-95.12" Width="60.42" Height="8.3" VertAlign="Center" Font="Arial, 7pt"/>
         <TextObject Name="Text56" Left="315.24" Top="0.99" Width="81.94" Height="18.8" Text="Grup Serviço" VertAlign="Center" Font="Arial, 8pt, style=Bold"/>
       </DataHeaderBand>
-      <DataFooterBand Name="DataFooter2" Top="43" Width="718.2" Height="20.79" Guides="0,3.78,15.12">
+      <DataFooterBand Name="DataFooter2" Top="44.13" Width="718.2" Height="20.79" Guides="0,3.78,15.12">
         <LineObject Name="Line4" Left="41.58" Width="674.73"/>
         <TextObject Name="Text48" Left="631.26" Top="3.78" Width="85.05" Height="11.34" Text="[TotalServicoItem]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="" Format.NegativePattern="1" HorzAlign="Right" Font="Arial, 8pt, style=Bold"/>
         <TextObject Name="Text49" Left="529.2" Top="3.78" Width="49.14" Height="11.34" Text="[TotalQtdServicoItem]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="" Format.NegativePattern="1" HorzAlign="Right" Font="Arial, 8pt, style=Bold"/>
